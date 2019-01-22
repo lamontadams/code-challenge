@@ -1,0 +1,30 @@
+{
+  "name": "draw-timeseries-plot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "draw-timeseries-plot.js",
+  "dependencies": {
+    "@types/async-retry": "^1.2.1",
+    "@types/aws-lambda": "^8.10.17",
+    "@types/aws-sdk": "^2.7.0",
+    "@types/moment": "^2.13.0",
+    "@types/node": "^10.12.18",
+    "moment": "^2.23.0",
+    "plotly": "^1.0.6"
+  },
+  "devDependencies": {
+    "aws-sdk": "^2.389.0",
+    "ts-loader": "^5.3.3",
+    "typescript": "^3.2.2",
+    "webpack": "^4.28.4",
+    "webpack-cli": "^3.2.1",
+    "zip-webpack-plugin": "^3.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "postinstall": "webpack --config webpack.config.js",
+    "build": "webpack --config webpack.config.js"
+  },
+  "author": "",
+  "license": "ISC"
+}
