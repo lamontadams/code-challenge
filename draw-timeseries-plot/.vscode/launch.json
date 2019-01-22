@@ -18,12 +18,25 @@
         {
             "type": "node",
             "request": "launch",
-            "name": "Test - draw-timeseries-plot",
-            "program": "${workspaceFolder}/src/tests/draw-timeseries-plot-test.ts",
+            "name": "Test - logEntry",
+            "program": "${workspaceFolder}/src/tests/logEntry-test.ts",
             "outFiles": [
                 "${workspaceFolder}/built/**/*.js"
             ]
             
+        },
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Test - draw-timeseries-plot",
+            "program": "${workspaceFolder}/src/tests/draw-timeseries-plot-test.ts",
+            "outFiles": [
+                "${workspaceFolder}/built/**/*.js"
+            ],
+            "env":{
+                "PLOTLY_USER": "lamontadams1",
+                "PLOTLY_API_KEY": "tnUsJi7bIw8JAjz872e2"
+            }
         }
     ]
 }

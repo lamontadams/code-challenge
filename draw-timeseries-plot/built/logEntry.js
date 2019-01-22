@@ -5,11 +5,11 @@ class LogEntry {
     getMomentTimestamp() {
         let self = this;
         let today = moment().format("YYYY-MM-DD");
-        return moment(today + "T" + self.TimeStamp.substring(0, 10) + "Z").format();
+        return moment(today + "T" + self.TimeStamp.substring(0, 8) + "Z").format();
     }
     getEntryType() {
         let self = this;
-        if (self.Text.startsWith(ScoreEntryMarker)) {
+        if (self.Text.indexOf(ScoreEntryMarker) === ScoreMarkerIndex) {
             return EntryType.Score;
         }
         else if (self.Text.startsWith(VisionDataEntryMarker)) {
@@ -34,7 +34,7 @@ class LogEntry {
     }
     getScoreValue() {
         let self = this;
-        let start = self.Text.indexOf("Score: ");
+        let start = self.Text.indexOf(ScoreEntryMarker) + ScoreEntryMarker.length;
         let end = self.Text.indexOf(",", start);
         let score = self.Text.substring(start, end);
         return parseInt(score);
@@ -48,16 +48,16 @@ var EntryType;
     EntryType[EntryType["Other"] = 2] = "Other";
 })(EntryType || (EntryType = {}));
 exports.EntryType = EntryType;
-const TimeStampEnd = 8;
+const TimeStampEnd = 12;
 const LogDataStart = 13;
+const ScoreMarkerIndex = 56;
 const ScoreEntryMarker = "Score: ";
-const VisionDataEntryMarker = "###GetVisData():VideoFile is :";
+const VisionDataEntryMarker = "###GetVisData():VideoFile is : ";
 function getLogEntry(line) {
-    let entry = {
-        TimeStamp: line.substring(0, TimeStampEnd),
-        Text: line.substring(LogDataStart),
-    };
+    let entry = new LogEntry();
+    entry.TimeStamp = line.substring(0, TimeStampEnd);
+    entry.Text = line.substring(LogDataStart);
     return entry;
 }
 exports.getLogEntry = getLogEntry;
-//# sourceMappingURL=logLine.js.map
+//# sourceMappingURL=logEntry.js.map

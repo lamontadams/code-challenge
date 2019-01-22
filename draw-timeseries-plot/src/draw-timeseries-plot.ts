@@ -10,8 +10,8 @@ const execute: Handler = async (rawEvent: any, context : Context, callback: Call
 
         console.log("Handling event %j", rawEvent);
 
-        let plotly_user = process.env.PLOTLY_USER || "lamontadams1";
-        let plotly_key = process.env.PLOTLY_API_KEY || "KGa95Z2qXaZbAn7ngzSY";
+        let plotly_user = process.env.PLOTLY_USER;
+        let plotly_key = process.env.PLOTLY_API_KEY;
         let bandSize = parseInt(process.env.TIME_BAND_SIZE || "10");
 
         let series = getTimeSeries("16:48:01", "19:06:07", bandSize);

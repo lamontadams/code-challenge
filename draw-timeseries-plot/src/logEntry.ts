@@ -8,12 +8,13 @@ class LogEntry {
         let self = this;
         //dates are so strange in javascript - this feels very hacky.
         let today = moment().format("YYYY-MM-DD");
-        return moment(today + "T" + self.TimeStamp.substring(0, 10) + "Z").format();
+        //strip off the miliseconds because it freaks moment out.
+        return moment(today + "T" + self.TimeStamp.substring(0, 8) + "Z").format();
     }
 
     public getEntryType(): EntryType {
         let self = this;
-        if(self.Text.startsWith(ScoreEntryMarker)){
+        if(self.Text.indexOf(ScoreEntryMarker) === ScoreMarkerIndex){
             return EntryType.Score;
         }
         else if(self.Text.startsWith(VisionDataEntryMarker))
@@ -51,9 +52,10 @@ class LogEntry {
         return the value between 'Score: ' and ','
         */
        let self = this;
-       let start = self.Text.indexOf("Score: ");
+       let start = self.Text.indexOf(ScoreEntryMarker) + ScoreEntryMarker.length;
        let end = self.Text.indexOf(",", start);
-       
+       let score = self.Text.substring(start, end);
+       return parseInt(score);
     }
 }
 
@@ -65,23 +67,21 @@ enum EntryType {
 
 //in real life I'd spend time to work out regex to do replace these.
 const TimeStampEnd = 12;
+const LogDataStart = 13;
+const ScoreMarkerIndex = 56;
 const ScoreEntryMarker = "Score: ";
-const VisionDataEntryMarker = "###GetVisData():VideoFile is :";
+const VisionDataEntryMarker = "###GetVisData():VideoFile is : ";
 
 function getLogEntry(line: string) : LogEntry {
     
     //In real life I'd also do some more robust error checking
-    let entry = <LogEntry> {
-        TimeStamp: line.substring(0, TimeStampEnd),
-        Text: line.substring(TimeStampEnd + 1),
-
-    }
-    let timeStamp = line.substring(0, TimeStampEnd);
-    let text = line.substring(TimeStampEnd +1);
-    if(text.startsWith(ScoreEntryMarker)){
-
-    }
+    let entry = new LogEntry();
+    entry.TimeStamp = line.substring(0, TimeStampEnd);
+    entry.Text = line.substring(LogDataStart);
+    
+    return entry;
 }
+
 export {
     LogEntry,
     EntryType,
