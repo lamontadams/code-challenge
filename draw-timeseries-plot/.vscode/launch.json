@@ -28,6 +28,17 @@
         {
             "type": "node",
             "request": "launch",
+            "name": "Test - fileParser",
+            "program": "${workspaceFolder}/src/tests/fileParser-test.ts",
+            "outFiles": [
+                "${workspaceFolder}/built/**/*.js"
+            ],
+            "cwd": "${workspaceFolder}/src/tests/"
+            
+        },
+        {
+            "type": "node",
+            "request": "launch",
             "name": "Test - draw-timeseries-plot",
             "program": "${workspaceFolder}/src/tests/draw-timeseries-plot-test.ts",
             "outFiles": [

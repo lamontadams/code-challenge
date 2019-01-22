@@ -7,8 +7,10 @@
     "@types/async-retry": "^1.2.1",
     "@types/aws-lambda": "^8.10.17",
     "@types/aws-sdk": "^2.7.0",
+    "@types/line-by-line": "^0.1.2",
     "@types/moment": "^2.13.0",
     "@types/node": "^10.12.18",
+    "line-by-line": "^0.1.6",
     "moment": "^2.23.0",
     "plotly": "^1.0.6"
   },
