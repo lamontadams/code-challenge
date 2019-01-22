@@ -1,0 +1,39 @@
+{
+    "Records": [
+        {
+            "eventVersion": "2.1",
+            "eventSource": "aws:s3",
+            "awsRegion": "us-east-1",
+            "eventTime": "2019-01-22T20:50:45.647Z",
+            "eventName": "ObjectCreated:Put",
+            "userIdentity": {
+                "principalId": "AWS:AIDAIHMW2MNLPYIXVVNWI"
+            },
+            "requestParameters": {
+                "sourceIPAddress": "162.233.67.99"
+            },
+            "responseElements": {
+                "x-amz-request-id": "9D61DC4531F80321",
+                "x-amz-id-2": "d1Cve/cozESeUZmAFyHdaysUdb1HkjzjzZikgW8DNDLbrJKZ7APBECD1LBcsTH+XsTBIudTbzhY="
+            },
+            "s3": {
+                "s3SchemaVersion": "1.0",
+                "configurationId": "lambda-put-event",
+                "bucket": {
+                    "name": "657653087923-test-bucket",
+                    "ownerIdentity": {
+                        "principalId": "A3BTXE4C52OSVR"
+                    },
+                    "arn": "arn:aws:s3:::657653087923-test-bucket"
+                },
+                "object": { 
+                    "key": "MRSI_VISION.LOG", 
+                    "size": 509617, 
+                    "eTag": "94497e912b2b16ce308b33615e5736fe", 
+                    "versionId": "HQ48mMbXtWgerIu0tBzzDJVYwqp.0sro", 
+                    "sequencer": "005C478A6FDE3C181F" 
+                }
+            }
+        }
+    ]
+}

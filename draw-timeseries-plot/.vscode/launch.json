@@ -47,7 +47,8 @@
             "env":{
                 "PLOTLY_USER": "lamontadams1",
                 "PLOTLY_API_KEY": "tnUsJi7bIw8JAjz872e2"
-            }
+            },
+            "cwd": "${workspaceFolder}/src/tests/"
         }
     ]
 }

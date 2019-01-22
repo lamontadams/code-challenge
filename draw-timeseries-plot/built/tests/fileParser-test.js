@@ -2,7 +2,7 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const fileParser_1 = require("../fileParser");
 const fs = require("fs");
-var buffer = fs.readFileSync("./sample-file.log");
+var buffer = fs.readFileSync("./MRSI_VISION.log");
 fileParser_1.parseFile(buffer)
     .then(entries => {
     console.log("done");

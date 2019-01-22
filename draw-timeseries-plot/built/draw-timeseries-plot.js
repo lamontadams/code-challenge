@@ -8,35 +8,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-const getTimeSeries_1 = require("./getTimeSeries");
-let plotly = require("plotly");
-const execute = (rawEvent, context, callback) => __awaiter(this, void 0, void 0, function* () {
+const fileParser_1 = require("./fileParser");
+const aws_sdk_1 = require("aws-sdk");
+const getPlot_1 = require("./getPlot");
+const execute = (event, context, callback) => __awaiter(this, void 0, void 0, function* () {
     try {
-        console.log("Handling event %j", rawEvent);
-        let plotly_user = process.env.PLOTLY_USER;
-        let plotly_key = process.env.PLOTLY_API_KEY;
-        let bandSize = parseInt(process.env.TIME_BAND_SIZE || "10");
-        let series = getTimeSeries_1.getTimeSeries("16:48:01", "19:06:07", bandSize);
-        let plotData = [
-            {
-                x: getTimeSeries_1.getTimeSeries("16:05:01", "16:55:08", 5),
-                y: [96.6, 89.5, 80.1, 96, 77.2, 97.5, 76.8, 77.9, 91.2, 95.8],
-                type: "scatter"
-            },
-            {
-                x: getTimeSeries_1.getTimeSeries("16:03:01", "16:53:08", 5),
-                y: [86.6, 79.5, 90.1, 86, 87.2, 87.5, 66.8, 97.9, 81.2, 85.8],
-                type: "scatter"
-            }
-        ];
-        var graphOptions = { filename: "graph", fileopt: "overwrite" };
-        yield plotly(plotly_user, plotly_key).plot(plotData, graphOptions, function (err, msg) {
-            console.log("Plotly response: %j", msg);
-            if (err) {
-                throw err;
-            }
-            callback();
-        });
+        console.log("Handling event %j", event);
+        let s3 = new aws_sdk_1.S3({ apiVersion: "2006-03-11" });
+        event.Records.forEach((record) => __awaiter(this, void 0, void 0, function* () {
+            let response = yield s3.getObject({
+                Bucket: record.s3.bucket.name,
+                Key: record.s3.object.key
+            }).promise();
+            let buffer = yield getPlot_1.getPlot(yield fileParser_1.parseFile(response.Body));
+            yield s3.putObject({
+                Bucket: record.s3.bucket.name,
+                Key: record.s3.object.key + ".graph.png",
+                Body: buffer
+            }).promise();
+        }));
     }
     catch (error) {
         console.error("Error from handle-github-message: %s", error);
