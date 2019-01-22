@@ -1,5 +1,5 @@
 
-import {PairedLogEntry, parseFile} from "../fileParser";
+import {PairedLogEntries, parseFile} from "../fileParser";
 import fs = require("fs");
 
 var buffer = fs.readFileSync("./sample-file.log");

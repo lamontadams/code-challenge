@@ -4,7 +4,7 @@ import LineByLineReader = require("line-by-line");
 import { Callback } from "aws-lambda";
 import util = require("util");
 
-async function parseFile(buffer: Buffer) : Promise<Array<PairedLogEntry>>{
+async function parseFile(buffer: Buffer) : Promise<Map<string, PairedLogEntries>>{
     //https://nodejs.org/api/readline.html#readline_example_read_file_stream_line_by_line
     //but it turns out typescript apparently doesn't support async iterators properly 
     //(code works but ugly <any> casts everywhere) so we'll node this and use someone's module...
@@ -16,26 +16,30 @@ async function parseFile(buffer: Buffer) : Promise<Array<PairedLogEntry>>{
         <any>stream //module supports reading from a stream but the typescript binding is off, so lets cast to any to make it work.
     );
     
-    return new Promise<Array<PairedLogEntry>>((resolve, reject) =>
+    return new Promise<Map<string, PairedLogEntries>>((resolve, reject) =>
     {
         readFile(reader, resolve, reject);
     });
 }
 
-class PairedLogEntry {
-    public VisionData: LogEntry
-    public Score: LogEntry
+class PairedLogEntries {
+    constructor(public VisionData: LogEntry) {
+        let self = this;
+        self.Scores = new Array<LogEntry>();
+    }
+    
+    public Scores: Array<LogEntry>
 }
 
-export { PairedLogEntry, parseFile }
+export { PairedLogEntries, parseFile }
 
 //private function - exists so we can promisify LineByLineReader into an async.
-function readFile(reader : LineByLineReader, success: (value?: PairedLogEntry[]) => void, error: Callback)
+function readFile(reader : LineByLineReader, success: (value?: Map<string, PairedLogEntries>) => void, error: Callback)
 {
     //walk through the file from top to bottom.
     //any time we see a line that looks like a video was loaded, hang onto that line and look for a score.
     //if we see another video load before seeing a score, replace the line we're hanging onto with it.
-    let results = new Array<PairedLogEntry>();
+    let results = new Map<string, PairedLogEntries>();
     let lastVisionDataLogEntry: LogEntry = null;
     reader.on("line", (line) =>{
         try {
@@ -48,14 +52,24 @@ function readFile(reader : LineByLineReader, success: (value?: PairedLogEntry[])
                 }
                 else
                 {
-                    console.debug("Matched Score entry at %s with VisionData entry at %s", logEntry.Text, lastVisionDataLogEntry.TimeStamp);
-                    results.push({ VisionData: lastVisionDataLogEntry, Score: logEntry });
+                    console.debug("Matched Score entry at %s with VisionData entry at %s", logEntry.TimeStamp, lastVisionDataLogEntry.TimeStamp);
+                    let key = lastVisionDataLogEntry.getValue().toString(); 
+                    if(!results.has(key))
+                    {
+                        results.set(key, new PairedLogEntries(lastVisionDataLogEntry));
+                    }
+                    results.get(key).Scores.push(logEntry);
                     lastVisionDataLogEntry = null;
                 }
             }
             else if(logEntry.getEntryType() == EntryType.VisionData)
             {
                 console.debug("Found VisionData entry at %s", logEntry.TimeStamp);
+                
+                if(!results.has(logEntry.getValue().toString()))
+                {
+                    results.set(logEntry.getValue().toString(), new PairedLogEntries(logEntry));
+                }
                 if(lastVisionDataLogEntry !== null)
                 {
                     console.debug("Replacing VisionData entry from %s", lastVisionDataLogEntry.TimeStamp);
@@ -65,7 +79,7 @@ function readFile(reader : LineByLineReader, success: (value?: PairedLogEntry[])
             else
             {
                 //pass
-                console.debug("Skipping entry at %s", logEntry.TimeStamp);
+                //console.debug("Skipping entry at %s", logEntry.TimeStamp);
             }
         }
         catch(err)
@@ -75,6 +89,17 @@ function readFile(reader : LineByLineReader, success: (value?: PairedLogEntry[])
     });
     
     reader.on("end", () => {
-        success(results);
+        let resultsWithScores = new Map<string, PairedLogEntries>();
+        results.forEach((v, k, map) => {
+            if(v.Scores.length > 0)
+            {
+                resultsWithScores.set(k, v);
+            }
+            else
+            {
+                console.debug("Omitting VisionData %s because it had no matching scores", k);
+            }
+        });
+        success(resultsWithScores);
     });
 }

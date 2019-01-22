@@ -22,11 +22,16 @@ function parseFile(buffer) {
     });
 }
 exports.parseFile = parseFile;
-class PairedLogEntry {
+class PairedLogEntries {
+    constructor(VisionData) {
+        this.VisionData = VisionData;
+        let self = this;
+        self.Scores = new Array();
+    }
 }
-exports.PairedLogEntry = PairedLogEntry;
+exports.PairedLogEntries = PairedLogEntries;
 function readFile(reader, success, error) {
-    let results = new Array();
+    let results = new Map();
     let lastVisionDataLogEntry = null;
     reader.on("line", (line) => {
         try {
@@ -36,20 +41,26 @@ function readFile(reader, success, error) {
                     console.error("Line at timestamp %s contains a score with no preceeding VisionData. Raw text: %s", logEntry.TimeStamp, logEntry.Text);
                 }
                 else {
-                    console.debug("Matched Score entry at %s with VisionData entry at %s", logEntry.Text, lastVisionDataLogEntry.TimeStamp);
-                    results.push({ VisionData: lastVisionDataLogEntry, Score: logEntry });
+                    console.debug("Matched Score entry at %s with VisionData entry at %s", logEntry.TimeStamp, lastVisionDataLogEntry.TimeStamp);
+                    let key = lastVisionDataLogEntry.getValue().toString();
+                    if (!results.has(key)) {
+                        results.set(key, new PairedLogEntries(lastVisionDataLogEntry));
+                    }
+                    results.get(key).Scores.push(logEntry);
                     lastVisionDataLogEntry = null;
                 }
             }
             else if (logEntry.getEntryType() == logEntry_1.EntryType.VisionData) {
                 console.debug("Found VisionData entry at %s", logEntry.TimeStamp);
+                if (!results.has(logEntry.getValue().toString())) {
+                    results.set(logEntry.getValue().toString(), new PairedLogEntries(logEntry));
+                }
                 if (lastVisionDataLogEntry !== null) {
                     console.debug("Replacing VisionData entry from %s", lastVisionDataLogEntry.TimeStamp);
                 }
                 lastVisionDataLogEntry = logEntry;
             }
             else {
-                console.debug("Skipping entry at %s", logEntry.TimeStamp);
             }
         }
         catch (err) {
@@ -57,7 +68,16 @@ function readFile(reader, success, error) {
         }
     });
     reader.on("end", () => {
-        success(results);
+        let resultsWithScores = new Map();
+        results.forEach((v, k, map) => {
+            if (v.Scores.length > 0) {
+                resultsWithScores.set(k, v);
+            }
+            else {
+                console.debug("Omitting VisionData %s because it had no matching scores", k);
+            }
+        });
+        success(resultsWithScores);
     });
 }
 //# sourceMappingURL=fileParser.js.map
