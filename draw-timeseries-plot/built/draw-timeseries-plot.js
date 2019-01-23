@@ -16,16 +16,22 @@ const execute = (event, context, callback) => __awaiter(this, void 0, void 0, fu
         console.log("Handling event %j", event);
         let s3 = new aws_sdk_1.S3({ apiVersion: "2006-03-11" });
         event.Records.forEach((record) => __awaiter(this, void 0, void 0, function* () {
-            let response = yield s3.getObject({
+            let getObjectParams = {
                 Bucket: record.s3.bucket.name,
                 Key: record.s3.object.key
-            }).promise();
+            };
+            console.debug("s3.getObject %j", getObjectParams);
+            let response = yield s3.getObject(getObjectParams).promise();
             let buffer = yield getPlot_1.getPlot(yield fileParser_1.parseFile(response.Body));
-            yield s3.putObject({
+            let putObjectParams = {
                 Bucket: record.s3.bucket.name,
                 Key: record.s3.object.key + ".graph.png",
-                Body: buffer
-            }).promise();
+                Body: null
+            };
+            console.debug("s3.putObject (Body omitted) %j", putObjectParams);
+            putObjectParams.Body = buffer;
+            yield s3.putObject(putObjectParams).promise();
+            console.log("Finished.");
         }));
     }
     catch (error) {

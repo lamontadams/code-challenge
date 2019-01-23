@@ -82,8 +82,13 @@ function getLogEntry(line: string) : LogEntry {
     return entry;
 }
 
+function getScoreTitle(logEntry: LogEntry) : string {
+    return logEntry.getValue().toString();
+}
+
 export {
     LogEntry,
     EntryType,
-    getLogEntry
+    getLogEntry,
+    getScoreTitle
 }

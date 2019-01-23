@@ -13,24 +13,31 @@ const execute: Handler = async (event: S3CreateEvent, context : Context, callbac
 
         event.Records.forEach(async (record) =>  {
             
-            //get the file from s3
-            let response = await s3.getObject({
+            let getObjectParams = {
                 Bucket: record.s3.bucket.name,
                 Key: record.s3.object.key
-            }).promise();
+            };
+            console.debug("s3.getObject %j", getObjectParams);
+            //get the file from s3
+            let response = await s3.getObject(getObjectParams).promise();
             
-            //Body is a union which the compiler still doesn't deal with well, so we need a cast.
+            //Body is a union type, so we help the compiler out with a cast.
             let buffer = await getPlot(await parseFile(<Buffer> response.Body));
             
+            let putObjectParams = {
+                Bucket: record.s3.bucket.name,
+                Key: record.s3.object.key + ".graph.png",
+                Body: <any> null
+            };
+            console.debug("s3.putObject (Body omitted) %j", putObjectParams);
+            putObjectParams.Body = buffer;
             //put the buffer back into s3
             await s3.putObject(
-                {
-                    Bucket: record.s3.bucket.name,
-                    Key: record.s3.object.key + ".graph.png",
-                    Body: buffer
-                }
+                putObjectParams
             ).promise();
+            
             //TODO: post a message somewhere saying the file was done.
+            console.log("Finished.");
         });
         
         

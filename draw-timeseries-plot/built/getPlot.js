@@ -18,14 +18,18 @@ function getPlot(logEntries) {
         logEntries.forEach((v, k, m) => {
             let times = new Array();
             let scores = new Array();
+            let labels = new Array();
             v.Scores.forEach((score, scoreIndex) => {
                 times.push(score.getMomentTimestamp());
                 scores.push(score.getValue());
+                labels.push(score.getValue().toString());
             });
             plotData.push({
                 x: times,
                 y: scores,
-                type: "scatter"
+                text: labels,
+                type: "scatter",
+                name: v.VisionData.getValue()
             });
         });
         return yield getPlotlyImage(plotData);
@@ -39,15 +43,30 @@ function getPlotlyImage(plotData) {
         let graphOptions = { filename: "graph-" + moment().unix(), fileopt: "overwrite" };
         let plotlyClient = plotly(plotly_user, plotly_key);
         return new Promise((resolve, reject) => {
-            plotlyClient.getImage({ data: plotData }, { format: "png" }, function (err, imageStream) {
+            let imageOptions = {
+                format: "png",
+                width: 1600,
+                height: 700,
+                xaxis: {
+                    title: { text: "Time" }
+                },
+                yaxis: {
+                    title: "Score"
+                }
+            };
+            console.debug("Calling plotlyClient.getImage data: %j, options:%j", plotData, imageOptions);
+            plotlyClient.getImage({ data: plotData }, imageOptions, function (err, imageStream) {
                 if (err) {
+                    console.error("error response from plotly: " + err);
                     reject(err);
                 }
                 else {
                     let fileName = "/tmp/" + graphOptions.filename + ".png";
+                    console.debug("Piping response from plotly to %s", fileName);
                     let fileStream = fs.createWriteStream(fileName);
                     imageStream.pipe(fileStream);
                     fileStream.on("finish", function () {
+                        console.debug("Streaming finished. Reading back as buffer.");
                         resolve(fs.readFileSync(fileName));
                     });
                 }

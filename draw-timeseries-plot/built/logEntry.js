@@ -60,4 +60,8 @@ function getLogEntry(line) {
     return entry;
 }
 exports.getLogEntry = getLogEntry;
+function getScoreTitle(logEntry) {
+    return logEntry.getValue().toString();
+}
+exports.getScoreTitle = getScoreTitle;
 //# sourceMappingURL=logEntry.js.map
