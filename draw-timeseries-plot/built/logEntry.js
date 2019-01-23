@@ -37,7 +37,7 @@ class LogEntry {
         let start = self.Text.indexOf(ScoreEntryMarker) + ScoreEntryMarker.length;
         let end = self.Text.indexOf(",", start);
         let score = self.Text.substring(start, end);
-        return parseInt(score);
+        return parseFloat(score);
     }
 }
 exports.LogEntry = LogEntry;

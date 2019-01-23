@@ -29,7 +29,9 @@ function getPlot(logEntries) {
                 y: scores,
                 text: labels,
                 type: "scatter",
-                name: v.VisionData.getValue()
+                mode: "lines+markers+text",
+                name: v.VisionData.getValue(),
+                textposition: "top center"
             });
         });
         return yield getPlotlyImage(plotData);
@@ -47,15 +49,20 @@ function getPlotlyImage(plotData) {
                 format: "png",
                 width: 1600,
                 height: 700,
-                xaxis: {
-                    title: { text: "Time" }
-                },
-                yaxis: {
-                    title: "Score"
+            };
+            let figure = {
+                data: plotData,
+                layout: {
+                    xaxis: {
+                        title: "Time"
+                    },
+                    yaxis: {
+                        title: "Score"
+                    }
                 }
             };
-            console.debug("Calling plotlyClient.getImage data: %j, options:%j", plotData, imageOptions);
-            plotlyClient.getImage({ data: plotData }, imageOptions, function (err, imageStream) {
+            console.debug("Calling plotlyClient.getImage data: %s, options:%s", JSON.stringify(plotData), JSON.stringify(imageOptions));
+            plotlyClient.getImage(figure, imageOptions, function (err, imageStream) {
                 if (err) {
                     console.error("error response from plotly: " + err);
                     reject(err);
