@@ -1,7 +1,5 @@
 import { PairedLogEntries } from "./fileParser";
-import fetch from "node-fetch";
 import fs = require("fs");
-import { PassThrough }  from "stream";
 
 let moment = require("moment");
 
@@ -42,8 +40,10 @@ async function getPlot(logEntries: Map<string, PairedLogEntries>): Promise<Buffe
 
 async function getPlotlyImage(plotData: Array<any>): Promise<Buffer>
 {
+    //get our plotly config from the environment
     let plotly_user = process.env.PLOTLY_USER;
     let plotly_key = process.env.PLOTLY_API_KEY;
+    
     let graphOptions = { filename:"graph-" + moment().unix(), fileopt:"overwrite" };
     let plotlyClient = plotly(plotly_user, plotly_key);
 

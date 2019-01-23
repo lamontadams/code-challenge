@@ -6,12 +6,11 @@ import { getPlot } from "./getPlot";
 const execute: Handler = async (event: S3CreateEvent, context : Context, callback: Callback) =>
 {
     console.log("Handling event %j", event);
-
     
     let promises = new Array<any>();
 
     event.Records.forEach((record) =>  {
-        promises.push(handleFile(record));
+        promises.push(handleRecord(record));
     });
 
     try {
@@ -26,7 +25,7 @@ const execute: Handler = async (event: S3CreateEvent, context : Context, callbac
     
 }
 
-async function handleFile(record: S3EventRecord)
+async function handleRecord(record: S3EventRecord)
 {
     try {
         let s3 = new S3({apiVersion:"2006-03-11"});
@@ -40,7 +39,8 @@ async function handleFile(record: S3EventRecord)
         let response = await s3.getObject(getObjectParams).promise();
         
         //Body is a union type, so we help the compiler out with a cast.
-        let buffer = await getPlot(await parseFile(<Buffer> response.Body));
+        let scoreMap = await parseFile(<Buffer> response.Body);
+        let buffer = await getPlot(scoreMap);
         
         let putObjectParams = {
             Bucket: record.s3.bucket.name,
