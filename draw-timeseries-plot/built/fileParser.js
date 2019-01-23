@@ -56,7 +56,6 @@ function readFile(reader, success, error) {
                     results.set(logEntry.getValue().toString(), new PairedLogEntries(logEntry));
                 }
                 if (lastVisionDataLogEntry !== null) {
-                    console.debug("Replacing VisionData entry from %s", lastVisionDataLogEntry.TimeStamp);
                 }
                 lastVisionDataLogEntry = logEntry;
             }

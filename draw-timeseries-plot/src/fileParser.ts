@@ -72,7 +72,7 @@ function readFile(reader : LineByLineReader, success: (value?: Map<string, Paire
                 }
                 if(lastVisionDataLogEntry !== null)
                 {
-                    console.debug("Replacing VisionData entry from %s", lastVisionDataLogEntry.TimeStamp);
+                    //console.debug("Replacing VisionData entry from %s", lastVisionDataLogEntry.TimeStamp);
                 }
                 lastVisionDataLogEntry = logEntry;
             }

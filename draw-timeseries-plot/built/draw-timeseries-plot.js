@@ -12,10 +12,25 @@ const fileParser_1 = require("./fileParser");
 const aws_sdk_1 = require("aws-sdk");
 const getPlot_1 = require("./getPlot");
 const execute = (event, context, callback) => __awaiter(this, void 0, void 0, function* () {
+    console.log("Handling event %j", event);
+    let promises = new Array();
+    event.Records.forEach((record) => {
+        promises.push(handleFile(record));
+    });
     try {
-        console.log("Handling event %j", event);
-        let s3 = new aws_sdk_1.S3({ apiVersion: "2006-03-11" });
-        event.Records.forEach((record) => __awaiter(this, void 0, void 0, function* () {
+        yield Promise.all(promises);
+        callback();
+    }
+    catch (error) {
+        console.error("Exception in draw-timeseries-plot %s", error);
+        callback(error);
+    }
+});
+exports.execute = execute;
+function handleFile(record) {
+    return __awaiter(this, void 0, void 0, function* () {
+        try {
+            let s3 = new aws_sdk_1.S3({ apiVersion: "2006-03-11" });
             let getObjectParams = {
                 Bucket: record.s3.bucket.name,
                 Key: record.s3.object.key
@@ -31,14 +46,10 @@ const execute = (event, context, callback) => __awaiter(this, void 0, void 0, fu
             console.debug("s3.putObject (Body omitted) %j", putObjectParams);
             putObjectParams.Body = buffer;
             yield s3.putObject(putObjectParams).promise();
-            console.log("Finished.");
-        }));
-    }
-    catch (error) {
-        console.error("Error from handle-github-message: %s", error);
-        callback(error, { statusCode: 500 });
-        return error;
-    }
-});
-exports.execute = execute;
+        }
+        catch (error) {
+            throw error;
+        }
+    });
+}
 //# sourceMappingURL=draw-timeseries-plot.js.map
